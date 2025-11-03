@@ -6,6 +6,7 @@ Created on Tue Oct 21 15:16:39 2025
 """
 import os
 import pandas as pd
+import numpy as np
 
 import scoring
 
@@ -20,7 +21,7 @@ class Particle:
         score (int): The calculated score value
     """
     
-    def __init__(self, tag, index, path, columns):
+    def __init__(self, tag, index, initial_score):
         """
         Initialize a Particle object.
         
@@ -28,16 +29,11 @@ class Particle:
             tag (str): The name of the file.
             index (int): The index value (integer).
             score (int): The score value (integer).
-            path (str): The path where the dataset is located to distribute probes.
-            columns (list): The names of the columns to track.
         """
         self.tag     = tag
         self.index   = int(index)
-        self.score   = 0
-        self.path    = path
-        self.columns = columns
-        self.current = self.load_data()
-        self.max_idx = 2500
+        self.score   = initial_score
+        self.current = None
     
     def update(self, true_value):
         """
@@ -54,73 +50,15 @@ class Particle:
         
         Args:
             true_value (): The name of the file
-        """        
-        # Get values for current index and tag
-        self.current = self.load_data()
-        
+        """              
         # Calculate score; score must be single numerical value
         self.score = scoring.calculate_normAbs_score(self.current, true_value)
         
         return self.score
-        
-    def load_data(self):
-        """
-        Lightweight function to load a single row from a CSV file.
-        
-        Args:
-            folder_path (str): Path to folder containing the CSV file (default: current directory)
-            columns (list or str): Column name(s) to retrieve. If None, retrieves all columns.
-        
-        Returns:
-            dict: Dictionary with column names as keys and values from the specified row.
-                  Returns None if loading fails.
-        """
-        # Construct full file path
-        file_path = os.path.join(self.path, self.tag)
-        
-        columns = self.columns
-        
-        try:
-            # Read only the specific row (more memory efficient than loading entire file)
-            df = pd.read_csv(file_path, skiprows=range(1, self.index + 1), nrows=1)
-            
-            # If skiprows skipped the header, we need to reload with proper header
-            if self.index > 0:
-                # Read header separately
-                header_df = pd.read_csv(file_path, nrows=0)
-                df.columns = header_df.columns
-            
-            # Handle column selection
-            if columns is not None:
-                if isinstance(self.columns, str):
-                    columns = [columns]
-                
-                # Filter to requested columns
-                available_cols = [col for col in columns if col in df.columns]
-                
-                if not available_cols:
-                    print(f"WARNING: None of the specified columns {columns} found in {self.tag}")
-                    return None
-                
-                df = df[available_cols]
-            
-            # Convert the row to dictionary
-            result = df.iloc[0].to_dict()
-            return result
-            
-        except FileNotFoundError:
-            print(f"ERROR: File '{file_path}' not found")
-            return None
-        except IndexError:
-            print(f"ERROR: Index {self.index} out of range for file '{self.tag}'")
-            return None
-        except Exception as e:
-            print(f"ERROR loading data from '{self.tag}': {e}")
-            return None    
     
-    def forward(self):
+    def forward(self, max_idx):
         """Moves the particle foward in the same dataset"""
-        if self.index < self.max_idx:
+        if self.index < max_idx:
             self.index = self.index+1
         
     def __str__(self):

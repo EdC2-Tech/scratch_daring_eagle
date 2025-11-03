@@ -25,7 +25,7 @@ N_read = 10
 X_COLUMN = "time"
 
 # Column names for y-axis (can specify multiple columns to plot on same graph)
-Y_COLUMNS = ["TL14s1", "TA21s1"]
+Y_COLUMNS = ["TL14s1"]
 
 # X-axis label for the plot
 X_AXIS_LABEL = "Time (arbitrary)"

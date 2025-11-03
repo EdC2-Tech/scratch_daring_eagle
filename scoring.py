@@ -35,7 +35,7 @@ def calculate_mse_between_dicts(dict1, dict2):
     else:
         return None
 
-def calculate_normAbs_score(meas_value, true_value):
+def calculate_normAbs_score(pred_value, true_value):
     """
     Calculate normalized error between matching columns in two dictionaries.
     
@@ -49,12 +49,12 @@ def calculate_normAbs_score(meas_value, true_value):
     abs_norm_errors = []
     
     # Find common keys between both dictionaries
-    common_keys = set(meas_value.keys()) & set(true_value.keys())
+    common_keys = set(pred_value.keys()) & set(true_value.keys())
     
     for key in common_keys:
         try:
             # Calculate squared error for this column
-            abs_norm_error = abs((meas_value[key] - true_value[key])) / true_value[key]
+            abs_norm_error = abs((pred_value[key] - true_value[key])) / true_value[key]
             abs_norm_errors.append(abs_norm_error)
         except (TypeError, ValueError) as e:
             print(f"WARNING: Cannot calculate normalized absolute error for column '{key}': {e}")
